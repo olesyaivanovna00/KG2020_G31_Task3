@@ -1,7 +1,7 @@
 package com.company.line;
 
 import com.company.pixel.PixelDrawer;
-import com.company.ScreenPoint;
+import com.company.point.ScreenPoint;
 
 import java.awt.*;
 

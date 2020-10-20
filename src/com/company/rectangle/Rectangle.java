@@ -1,21 +1,20 @@
-package com.company.line;
+package com.company.rectangle;
 
 import com.company.point.RealPoint;
 
-public class Line {
+public class Rectangle {
+    private RealPoint p1, p2; //координата начала, координата конца по диагонали
 
-    private RealPoint p1;
-    private RealPoint p2;
-
-    public Line(RealPoint p1, RealPoint p2) {
+    public Rectangle(RealPoint p1, RealPoint p2) {
         this.p1 = p1;
         this.p2 = p2;
     }
 
-    public Line(double x1, double y1, double x2, double y2){
+    public Rectangle(double x1, double y1, double x2, double y2){
         p1 = new RealPoint(x1, y1);
         p2 = new RealPoint(x2, y2);
     }
+
 
     public RealPoint getP1() {
         return p1;

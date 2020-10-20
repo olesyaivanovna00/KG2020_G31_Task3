@@ -1,5 +1,8 @@
 package com.company;
 
+import com.company.point.RealPoint;
+import com.company.point.ScreenPoint;
+
 public class ScreenConverter {
     private double cornerX, cornerY;
     private double realWidth, realHeight;
@@ -18,6 +21,12 @@ public class ScreenConverter {
         int ansX = (int)((p.getX() - cornerX) * screenWidth / realWidth);
         int ansY = (int)((cornerY - p.getY()) * screenHeight / realHeight);
         return new ScreenPoint(ansX, ansY);
+    }
+
+    public RealPoint s2r(ScreenPoint p){
+        double ansX = p.getX() * realWidth / screenWidth + cornerX;
+        double ansY = cornerY - p.getY() * realHeight / screenHeight;
+        return new RealPoint(ansX, ansY);
     }
 
 

@@ -25,11 +25,11 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     ScreenConverter sc = new ScreenConverter(-2, 2, 4, 4,
             800, 600);
 
-
+    private ArrayList<Rectangle> allRect = new ArrayList<>();
     private ArrayList<Line> allLines = new ArrayList<>();
     private Line currentNewLine = null;
+    private boolean toMerge = false;
 
-    private Rectangle currentNewRectangle = null;
 
     public DrawPanel() {
         this.addMouseMotionListener(this);
@@ -55,17 +55,30 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
         drawLine(ld, xAxis);
         drawLine(ld, yAxis);
-//        for (Line l: allLines)
-//            drawLine(ld, l);
+
         RectangleDrawer rd = new DrawRectangle();
 
+        if (toMerge){
+            for (int i = 0; i < allRect.size() / 2; i++) {
+                ArrayList<Line> polygon = rd.mergeRectangle(allRect.get(2*i), allRect.get(2*i + 1));
+                for (Line l:polygon
+                ) {
+                    ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
+                }
+            }
 
-        if (currentNewLine != null){
-            drawRect(ld, currentNewLine, rd);
+            //rd.drawRectangle(sc.r2s(allRect.get(0).getP1()), sc.r2s(allRect.get(0).getP2()),ld);
+        }else {
+            if (currentNewLine != null) {
+                drawRect(ld, currentNewLine, rd);
+
+            }
+            for (Line l : allLines) {
+                drawRect(ld, l, rd);
+            }
         }
-        for (Line l: allLines)
-            drawRect(ld, l, rd);
-        rd.drawRectangle(new ScreenPoint(70, 70), new ScreenPoint(100, 100), ld);
+
+
 
         g.drawImage(bi, 0, 0, null);
 
@@ -77,6 +90,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private void drawRect(LineDrawer ld, Line l, RectangleDrawer rd) {
         rd.drawRectangle(sc.r2s(l.getP1()), sc.r2s(l.getP2()), ld);
     }
+
+
     private ScreenPoint lastPosition = null;
 
     @Override
@@ -110,20 +125,20 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        if (e.getButton() == MouseEvent.BUTTON1){
+            toMerge = true;
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        toMerge = false;
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = new ScreenPoint(e.getX(), e.getY());
         } else if (e.getButton() == MouseEvent.BUTTON1){
             currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
                                         sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-//            currentNewRectangle = new Rectangle(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
-//                                                sc.s2r(new ScreenPoint(e.getX(), e.getY())));
-//            currentNewRectangle = new Rectangle(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
-//                                        sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+
         }
     }
 
@@ -133,6 +148,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             lastPosition = null;
         } else if (e.getButton() == MouseEvent.BUTTON1){
             allLines.add(currentNewLine);
+            allRect.add(new Rectangle(currentNewLine.getP1(), currentNewLine.getP2()));
+
             currentNewLine = null;
         }
         repaint();

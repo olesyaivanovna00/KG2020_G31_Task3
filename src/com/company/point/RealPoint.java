@@ -24,4 +24,6 @@ public class RealPoint {
     public void setY(double y) {
         this.y = y;
     }
+
+
 }

@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.Objects;
+
 public class RealPoint {
     private double x;
     private double y;
@@ -24,4 +26,6 @@ public class RealPoint {
     public void setY(double y) {
         this.y = y;
     }
+
+
 }

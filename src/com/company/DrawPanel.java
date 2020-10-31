@@ -29,6 +29,10 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private ArrayList<Line> allLines = new ArrayList<>();
     private Line currentNewLine = null;
     private boolean toMerge = false;
+    private boolean scale = false;
+    private boolean transfer = false;
+    private Rectangle editRectangle = null;
+    private Rectangle currentRectangle = null;
 
 
     public DrawPanel() {
@@ -69,12 +73,12 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
             //rd.drawRectangle(sc.r2s(allRect.get(0).getP1()), sc.r2s(allRect.get(0).getP2()),ld);
         }else {
-            if (currentNewLine != null) {
-                drawRect(ld, currentNewLine, rd);
+            if (currentRectangle != null) {
+                drawRect(ld, currentRectangle, rd);
 
             }
-            for (Line l : allLines) {
-                drawRect(ld, l, rd);
+            for (Rectangle r : allRect) {
+                drawRect(ld, r, rd);
             }
         }
 
@@ -87,8 +91,8 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     private void drawLine(LineDrawer ld, Line l){
         ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
     }
-    private void drawRect(LineDrawer ld, Line l, RectangleDrawer rd) {
-        rd.drawRectangle(sc.r2s(l.getP1()), sc.r2s(l.getP2()), ld);
+    private void drawRect(LineDrawer ld, Rectangle r, RectangleDrawer rd) {
+        rd.drawRectangle(sc.r2s(r.getP1()), sc.r2s(r.getP2()), ld);
     }
 
 
@@ -97,24 +101,42 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mouseDragged(MouseEvent e) {
         ScreenPoint currentPosition = new ScreenPoint(e.getX(), e.getY());
-        if (lastPosition != null) {
-            ScreenPoint deltaScreen = new ScreenPoint(currentPosition.getX() - lastPosition.getX(),
-                    currentPosition.getY() - lastPosition.getY());
 
-            RealPoint deltaReal = sc.s2r(deltaScreen);
-            RealPoint zeroReal = sc.s2r(new ScreenPoint(0, 0));
+        if (transfer){
+            editRectangle.transfer(currentPosition, sc);
+            currentRectangle = editRectangle;
+        }
 
-            RealPoint vector = new RealPoint(deltaReal.getX() - zeroReal.getX(),
-                    deltaReal.getY() - zeroReal.getY());
-            sc.setCornerX(sc.getCornerX() - vector.getX());
-            sc.setCornerY(sc.getCornerY() - vector.getY());
-            lastPosition = currentPosition;
+            if (lastPosition != null) {
+                ScreenPoint deltaScreen = new ScreenPoint(currentPosition.getX() - lastPosition.getX(),
+                        currentPosition.getY() - lastPosition.getY());
+
+                RealPoint deltaReal = sc.s2r(deltaScreen);
+                RealPoint zeroReal = sc.s2r(new ScreenPoint(0, 0));
+
+                RealPoint vector = new RealPoint(deltaReal.getX() - zeroReal.getX(),
+                        deltaReal.getY() - zeroReal.getY());
+
+                if (editRectangle != null) {
+                    if (scale) {
+                        //System.out.println(vector.getX() + " " + vector.getY());
+                        editRectangle.scale(lastPosition, vector, sc);
+                    }
+                    currentRectangle = editRectangle;
+                } else {
+                    sc.setCornerX(sc.getCornerX() - vector.getX());
+                    sc.setCornerY(sc.getCornerY() - vector.getY());
+                }
+                lastPosition = currentPosition;
 
         }
 
         if (currentNewLine != null){
             currentNewLine.setP2(sc.s2r(currentPosition));
+            currentRectangle.setP2(sc.s2r(currentPosition));
         }
+
+
         repaint();
     }
 
@@ -126,30 +148,61 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1){
-            toMerge = true;
+            if (toMerge){
+                toMerge = false;
+            } else {
+                toMerge = true;
+            }
+        }
+
+        if (e.getButton() == MouseEvent.BUTTON3){
+            for (Rectangle r: allRect){
+                if(r.checkClick(new ScreenPoint(e.getX(), e.getY()), sc)){
+                    editRectangle = r;
+                }
+            }
         }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        toMerge = false;
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            lastPosition = new ScreenPoint(e.getX(), e.getY());
-        } else if (e.getButton() == MouseEvent.BUTTON1){
-            currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
-                                        sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+        if(editRectangle == null) {
 
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                lastPosition = new ScreenPoint(e.getX(), e.getY());
+            } else if (e.getButton() == MouseEvent.BUTTON1) {
+                currentNewLine = new Line(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
+                        sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+                currentRectangle = new Rectangle(sc.s2r(new ScreenPoint(e.getX(), e.getY())),
+                        sc.s2r(new ScreenPoint(e.getX(), e.getY())));
+
+
+            }
+        } else {
+            if(e.getButton() == MouseEvent.BUTTON1){
+                lastPosition = new ScreenPoint(e.getX(), e.getY());
+                scale = true;
+            } else
+            if(e.getButton() == MouseEvent.BUTTON3){
+                transfer = true;
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+
+        editRectangle = null;
+        transfer = false;
+        scale = false;
+        lastPosition = null;
+
         if (e.getButton() == MouseEvent.BUTTON3) {
             lastPosition = null;
         } else if (e.getButton() == MouseEvent.BUTTON1){
             allLines.add(currentNewLine);
-            allRect.add(new Rectangle(currentNewLine.getP1(), currentNewLine.getP2()));
-
+            allRect.add(currentRectangle);
+            currentRectangle = null;
             currentNewLine = null;
         }
         repaint();

@@ -1,10 +1,14 @@
 package com.company.rectangle;
 
+import com.company.IFigure;
 import com.company.ScreenConverter;
 import com.company.point.RealPoint;
 import com.company.point.ScreenPoint;
 
-public class Rectangle {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Rectangle implements IFigure {
     private RealPoint p1, p2; //координата начала, координата конца по диагонали
     private RealPoint p0, p3;
 
@@ -57,10 +61,11 @@ public class Rectangle {
         return p3;
     }
 
-    public void transfer(ScreenPoint newPos, ScreenConverter sc){
-        RealPoint currPos = sc.s2r(newPos);
-        double currX = currPos.getX();
-        double currY = currPos.getY();
+
+    @Override
+    public void transfer(RealPoint newPos){
+        double currX = newPos.getX();
+        double currY = newPos.getY();
 
         double width = Math.abs(p1.getX() - p2.getX());
         double height = Math.abs(p1.getY() - p2.getY());
@@ -71,10 +76,10 @@ public class Rectangle {
         this.p0 = new RealPoint(p2.getX(), p1.getY());
     }
 
-    public void scale(ScreenPoint lastPosition, RealPoint newPosition, ScreenConverter sc){
-        RealPoint prevPos = sc.s2r(lastPosition);
-        double prevX = prevPos.getX();
-        double prevY = prevPos.getY();
+    @Override
+    public void scale(RealPoint lastPosition, RealPoint newPosition){
+        double prevX = lastPosition.getX();
+        double prevY = lastPosition.getY();
 
         RealPoint currPos = newPosition;
         double currX = currPos.getX();
@@ -82,9 +87,6 @@ public class Rectangle {
 
         double width = Math.abs(p2.getX() - p1.getX());
         double height = Math.abs(p2.getY() - p1.getY());
-        
-
-
 
         if(Math.abs(p1.getX() - prevX) <= (width / 2) && Math.abs(p1.getY() - prevY) <= (height / 2)){
             this.p1 = new RealPoint(p1.getX() + currX, p1.getY() + currY);
@@ -105,23 +107,51 @@ public class Rectangle {
             this.p2 = new RealPoint(p0.getX(), p3.getY());
         }
 
-
-
-
     }
 
+    @Override
+    public boolean checkIfClicked(RealPoint dot){
 
-
-    public boolean checkClick(ScreenPoint dot, ScreenConverter sc){
-        RealPoint dotReal = sc.s2r(dot);
-        double x = dotReal.getX();
-        double y = dotReal.getY();
+        double x = dot.getX();
+        double y = dot.getY();
         double width = Math.abs(p1.getX() - p2.getX());
         double height = Math.abs(p1.getY() - p2.getY());
 
         return Math.abs(p1.getX() - x) < width && Math.abs(p1.getY() - y) < height;
-
     }
+
+    public ArrayList<Double> getAllYCords(){
+        ArrayList<Double> getAllYCords = new ArrayList<>();
+        getAllYCords.add(p1.getY());
+        getAllYCords.add(p0.getY());
+        getAllYCords.add(p2.getY());
+        getAllYCords.add(p3.getY());
+        return getAllYCords;
+    }
+
+    public ArrayList<Double> getAllXCords(){
+        ArrayList<Double> getAllXCords = new ArrayList<>();
+        getAllXCords.add(p1.getX());
+        getAllXCords.add(p0.getX());
+        getAllXCords.add(p2.getX());
+        getAllXCords.add(p3.getX());
+        return getAllXCords;
+    }
+
+    @Override
+    public List<RealPoint> getMarkers(){
+        ArrayList<RealPoint> getAllCords = new ArrayList<>();
+        getAllCords.add(p1);
+        getAllCords.add(p0);
+        getAllCords.add(p2);
+        getAllCords.add(p3);
+        return getAllCords;
+    }
+
+
+
+
+
 
 
 }

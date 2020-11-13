@@ -14,7 +14,7 @@ public class DDALineDrawer implements LineDrawer {
     }
 
     @Override
-    public void drawLine(ScreenPoint p1, ScreenPoint p2) {
+    public void drawLine(ScreenPoint p1, ScreenPoint p2, Color c) {
         int x1 = p1.getX();
         int y1 = p1.getY();
         int x2 = p2.getX();
@@ -34,7 +34,7 @@ public class DDALineDrawer implements LineDrawer {
             for (int j = x1; j <= x2 ; j++) {
                 double i = k * (j - x1) + y1;
                 pd.drawPixel(
-                        j, (int)i, Color.red
+                        j, (int)i, c
                 );
             }
 
@@ -49,7 +49,7 @@ public class DDALineDrawer implements LineDrawer {
             for (int i = y1; i <= y2 ; i++) {
                 double j = k * (i - y1) + x1;
                 pd.drawPixel(
-                        (int) j, i, Color.BLUE
+                        (int) j, i, c
                 );
             }
 

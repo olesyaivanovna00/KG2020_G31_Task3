@@ -148,6 +148,28 @@ public class Rectangle implements IFigure {
         return getAllCords;
     }
 
+            /*
+        p1-----p0
+        |       |
+        |       |
+        p3-----p2
+         */
+
+    public RealPoint getBottom(){
+        return p2;
+    }
+
+    public RealPoint getTop(){
+        return p1;
+    }
+
+    public RealPoint getLeft(){
+        return  p3;
+    }
+
+    public RealPoint getRight(){
+        return p0;
+    }
 
 
 

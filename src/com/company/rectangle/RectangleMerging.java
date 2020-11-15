@@ -5,98 +5,144 @@ import com.company.point.RealPoint;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public class RectangleMerging {
-//    public List<RealPoint> makePolygon(List<Rectangle> rectangles){
-//        List<RealPoint> points = calcPoints(rectangles);
-//        return points;
-//    }
-//
-//    private List<RealPoint> calcPoints(List<Rectangle> rectangles) {
-//        List<Point> ret = new ArrayList<>();
-//
-//        List<Float> yCoords = new ArrayList<>(getAllYCoords(rectangles));
-//        yCoords.sort(Comparator.naturalOrder());
-//
-//        float previousLeftCoord = 0;
-//        float previousRightCoord = 0;
-//
-//        for(float yCoord : yCoords) {
-//            System.out.println("Considering yCoords "+ yCoord);
-//            float minimumXLeftCoord = minXLeftCoord(yCoord, rectangles);
-//            float maximumXRightCoord = maxXRightCoord(yCoord, rectangles);
-//            System.out.println("min X: "+minimumXLeftCoord);
-//            System.out.println("max X: "+maximumXRightCoord);
-//
-//            if(yCoord == yCoords.get(0)) {
-//                ret.add(new Point(minimumXLeftCoord, yCoord));
-//                ret.add(new Point(maximumXRightCoord, yCoord));
-//
-//            } else {
-//
-//                if(minimumXLeftCoord!=previousLeftCoord) {
-//                    ret.add(0, new Point(previousLeftCoord, yCoord));
-//                    ret.add(0, new Point(minimumXLeftCoord, yCoord));
-//                } else {
-//                    ret.add(0, new Point(minimumXLeftCoord, yCoord));
-//                }
-//
-//                if(maximumXRightCoord!=previousRightCoord) {
-//                    ret.add(new Point(previousRightCoord, yCoord));
-//                    ret.add(new Point(maximumXRightCoord, yCoord));
-//                } else {
-//                    ret.add(new Point(maximumXRightCoord, yCoord));
-//                }
-//
+    public List<RealPoint> makePolygon(List<Rectangle> rectangles) {
+        List<RealPoint> points = calcPoints(rectangles);
+        return points;
+    }
+
+    private List<RealPoint> calcPoints(List<Rectangle> rectangles) {
+        List<RealPoint> ret = new ArrayList<>();
+
+        List<Double> yCords = new ArrayList<>(getAllYCords(rectangles));
+        List<Double> xCords = new ArrayList<>(getAllXCords(rectangles));
+        yCords.sort(Comparator.naturalOrder());
+
+        double previousLeftCoord = 0.0;
+        double previousRightCoord = 0.0;
+
+        for (double xCord : xCords
+        ) {
+            System.out.println("Considering xCords " + xCord);
+        }
+        System.out.println("size = " + yCords.size());
+        for (double yCord : yCords) {
+            System.out.println("Considering yCords " + yCord);
+            Double minimumXLeftCord = minXLeftCoord(yCord, rectangles);
+            Double maximumXRightCord = maxXRightCoord(yCord, rectangles);
+            System.out.println("min X: " + minimumXLeftCord);
+            System.out.println("max X: " + maximumXRightCord);
+
+            if (yCord == yCords.get(0)) {
+                ret.add(new RealPoint(minimumXLeftCord, yCord));
+
+            } else {
+
+                if (!minimumXLeftCord.equals(previousLeftCoord)) {
+                    ret.add(0, new RealPoint(previousLeftCoord, yCord));
+                }
+                ret.add(0, new RealPoint(minimumXLeftCord, yCord));
+
+                if (!maximumXRightCord.equals(previousRightCoord)) {
+                    ret.add(new RealPoint(previousRightCoord, yCord));
+                }
+
+            }
+            ret.add(new RealPoint(maximumXRightCord, yCord));
+
+            previousLeftCoord = minimumXLeftCord;
+            previousRightCoord = maximumXRightCord;
+        }
+
+        return ret;
+
+    }
+
+    private Set<Double> getAllXCords(List<Rectangle> rectangles) {
+        List<Double> allLeftXCords = rectangles.stream().map(rectangle -> rectangle.getLeft().getX()).collect(Collectors.toList());
+        List<Double> allRightXCords = rectangles.stream().map(rectangle -> rectangle.getRight().getX()).collect(Collectors.toList());
+
+        Set<Double> allCords = new HashSet<>();
+        allCords.addAll(allLeftXCords);
+        allCords.addAll(allRightXCords);
+        return allCords;
+    }
+
+    private Set<Double> getAllYCords(List<Rectangle> rectangles) {
+
+        List<Double> allBottomYCords = rectangles.stream().map(rectangle -> rectangle.getBottom().getY()).collect(Collectors.toList());
+        List<Double> allTopYCords = rectangles.stream().map(rectangle -> rectangle.getTop().getY()).collect(Collectors.toList());
+
+        Set<Double> allCords = new HashSet<>();
+        allCords.addAll(allTopYCords);
+        allCords.addAll(allBottomYCords);
+        return allCords;
+    }
+
+    private Double minXLeftCoord(double y, List<Rectangle> rectangles) {
+        List<Rectangle> rectAtY = rectanglesAtY(y, rectangles);
+        double minXLeftCord = 99.0;
+        for (Rectangle r : rectAtY) {
+            if (r.getLeft().getX() < minXLeftCord) {
+                minXLeftCord = r.getLeft().getX();
+            }
+        }
+
+        return minXLeftCord;
+
+    }
+
+    private Double maxXRightCoord(double y, List<Rectangle> rectangles) {
+        List<Rectangle> rectAtY = rectanglesAtY(y, rectangles);
+
+        double maxXRightCord = -99.0;
+        for (Rectangle r : rectAtY) {
+            if (r.getRight().getX() > maxXRightCord) {
+                maxXRightCord = r.getRight().getX();
+            }
+        }
+
+        return maxXRightCord;
+
+    }
+
+    private List<Rectangle> rectanglesAtY(double y, List<Rectangle> rectangles) {
+        List<Rectangle> rectsAtYBottomLines = rectsAtYBottomLines(y, rectangles);
+        if (rectsAtYBottomLines.size() == 1){
+            return rectsAtYBottomLines;
+        } else {
+
+//            for (Rectangle r: rectsAtYBottomLines) {
+//                r.
 //            }
-//
-//            previousLeftCoord = minimumXLeftCoord;
-//            previousRightCoord = maximumXRightCoord;
-//            System.out.println(ret);
-//        }
-//
-//        return ret;
-//
-//    }
-//
-//    private Set<Float> getAllYCoords(List<Rectangle> rectangles) {
-//        List<Float> allBottomYCoords = rectangles.stream().map(rectangle -> rectangle.getBottom().getY()).collect(Collectors.toList());
-//        List<Float> allTopYCoords = rectangles.stream().map(rectangle -> rectangle.getTop().getY()).collect(Collectors.toList());
-//
-//        Set<Float> allCoords = new HashSet<>();
-//        allCoords.addAll(allTopYCoords);
-//        allCoords.addAll(allBottomYCoords);
-//        return allCoords;
-//    }
-//
-//    private float minXLeftCoord(Float y, List<Rectangle> rectangles) {
-//        return rectanglesAtY(y, rectangles).stream().map(rect -> rect.getLeft().getX()).min(Comparator.naturalOrder()).get();
-//    }
-//
-//    private float maxXRightCoord(Float y, List<Rectangle> rectangles) {
-//        return rectanglesAtY(y, rectangles).stream().map(rect -> rect.getRight().getX()).max(Comparator.naturalOrder()).get();
-//    }
-//
-//    private List<Rectangle> rectanglesAtY(Float y, List<Rectangle> rectangles) {
-//        List<Rectangle> rectsAtYExcBottomLines = rectsAtYExcBottomLines(y, rectangles);
-//
-//        if(rectsAtYExcBottomLines.size()>0) {
-//            // there are rectangles that are not closing here, so ignore those that are closing.
-//            return rectsAtYExcBottomLines;
-//        } else {
-//            // there are only rectangle bottom lines so we need to consider them.
-//            return rectsAtYIncBottomLines(y, rectangles);
-//        }
-//    }
-//
-//    private List<Rectangle> rectsAtYExcBottomLines(Float y, List<Rectangle> rectangles) {
-//        return rectangles.stream()
-//                .filter(rect -> rect.getTop().getY()<=y && rect.getBottom().getY()>y).collect(Collectors.toList());
-//    }
-//
-//    private List<Rectangle> rectsAtYIncBottomLines(Float y, List<Rectangle> rectangles) {
-//        return rectangles.stream()
-//                .filter(rect -> rect.getTop().getY()<=y && rect.getBottom().getY()==y).collect(Collectors.toList());
-//    }
+            return rectsAtYBottomLines;
+        }
+
+        //надо понять пересекается ли он с чем-то
+        //если размер листа = 1, то просто точки соединяем, а если нет то что-то надо делать
+
+    }
+
+
+    private List<Rectangle> rectsAtYBottomLines(double y, List<Rectangle> rectangles) {
+        List<Rectangle> rectsAtYBottomLines = new ArrayList<>();
+        for (Rectangle r : rectangles) {
+
+            if (r.getTop().getY() == y || r.getBottom().getY() == y) {
+                rectsAtYBottomLines.add(r);
+            }
+            if (r.getTop().getY() > y && r.getBottom().getY() < y) {
+                rectsAtYBottomLines.add(r);
+            }
+        }
+        return rectsAtYBottomLines;
+
+    }
+
+
 
 }

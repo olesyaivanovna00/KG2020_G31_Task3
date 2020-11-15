@@ -7,9 +7,7 @@ import com.company.pixel.BufferedImagePixelDrawer;
 import com.company.pixel.PixelDrawer;
 import com.company.point.RealPoint;
 import com.company.point.ScreenPoint;
-import com.company.rectangle.DrawRectangle;
-import com.company.rectangle.ListRect;
-import com.company.rectangle.RectangleDrawer;
+import com.company.rectangle.*;
 import com.company.rectangle.Rectangle;
 
 
@@ -72,12 +70,18 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 //                ) {
 //                    ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
 //                }
-            ListRect listRect = new ListRect();
-            System.out.println("__");
-            System.out.println(allRect.size());
-            System.out.println("__");
-            LinkedList<Rectangle> rectangleLinkedList = new LinkedList<>(allRect);
-            drawPolygon(listRect.solve(rectangleLinkedList), ld);
+
+            RectangleMerging rectangleMerging = new RectangleMerging();
+            List<RealPoint> polygonPoints = rectangleMerging.makePolygon(allRect);
+            drawPolygon(polygonPoints, ld);
+//            ListRect listRect = new ListRect();
+//            //System.out.println(allRect.size());
+//            LinkedList<Rectangle> rectangleLinkedList = new LinkedList<>(allRect);
+//            System.out.println("__");
+//            System.out.println(rectangleLinkedList.size());
+//            System.out.println("__");
+//
+//            drawPolygon(listRect.solve(rectangleLinkedList), ld);
 
             //rd.drawRectangle(sc.r2s(allRect.get(0).getP1()), sc.r2s(allRect.get(0).getP2()),ld);
         }else {
@@ -90,7 +94,6 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             }
 
             if (editRectangle != null){
-
                 drawMarkers((Graphics2D) gr);
             }
         }
@@ -103,11 +106,14 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-    private void drawPolygon(LinkedList<RealPoint> points, LineDrawer ld){
+    private void drawPolygon(List<RealPoint> points, LineDrawer ld){
+
         for (int i = 0; i < points.size() - 1; i++) {
             ld.drawLine(sc.r2s(points.get(i)), sc.r2s(points.get(i + 1)), black);
         }
+
         ld.drawLine(sc.r2s(points.get(points.size() - 1)), sc.r2s(points.get(0)), black);
+
     }
 
 
@@ -159,32 +165,15 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
                 RealPoint vector = new RealPoint(deltaReal.getX() - zeroReal.getX(),
                         deltaReal.getY() - zeroReal.getY());
                 if (scale) {
-                    if (clickToScaleMarkers(currentPosition)) {
-
                         editRectangle.scale(sc.s2r(lastPosition), vector);
-                    } else {
-                        if (lastPosition != null) {
-                            sc.setCornerX(sc.getCornerX() - vector.getX());
-                            sc.setCornerY(sc.getCornerY() - vector.getY());
-                        }
-                    }
-                    lastPosition = currentPosition;
-
-
                 }
 
                 if (transfer) {
-                    if (clickToTranslationMarker(currentPosition)) {
+
                         editRectangle.transfer(sc.s2r(currentPosition));
-                        //currentRectangle = editRectangle;
-                    } else {
-                        if (lastPosition != null) {
-                            sc.setCornerX(sc.getCornerX() - vector.getX());
-                            sc.setCornerY(sc.getCornerY() - vector.getY());
-                        }
-                        lastPosition = currentPosition;
-                    }
+
                 }
+                lastPosition = currentPosition;
 
 
             }
@@ -262,10 +251,14 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
             } else {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     lastPosition = new ScreenPoint(e.getX(), e.getY());
-                    scale = true;
+                    if (clickToScaleMarkers(lastPosition)) {
+                        scale = true;
+                    }
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
                     lastPosition = new ScreenPoint(e.getX(), e.getY());
-                    transfer = true;
+                    if (clickToTranslationMarker(lastPosition)) {
+                        transfer = true;
+                    }
                 }
             }
         }

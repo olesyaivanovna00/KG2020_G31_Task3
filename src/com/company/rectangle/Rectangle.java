@@ -119,6 +119,12 @@ public class Rectangle implements IFigure {
 
         return Math.abs(p1.getX() - x) < width && Math.abs(p1.getY() - y) < height;
     }
+    public boolean isInside(RealPoint point){
+        double x = point.getX();
+        double y = point.getX();
+
+        return (p1.getX() < x && p2.getX() > x && p1.getY() > y && p2.getY() < y);
+    }
 
     public ArrayList<Double> getAllYCords(){
         ArrayList<Double> getAllYCords = new ArrayList<>();
@@ -172,8 +178,11 @@ public class Rectangle implements IFigure {
     }
 
 
+    @Override
+    public boolean equals(Object obj) {
+        Rectangle r = (Rectangle) obj;
+        return r.getBottom().getX() == getBottom().getX() && r.getBottom().getY() == getBottom().getY() &&
+                r.getTop().getX() == getTop().getX() && r.getTop().getY() == getTop().getY();
 
-
-
-
+    }
 }

@@ -65,25 +65,16 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
 
 
         if (toMerge){
-//                ArrayList<Line> polygon = rd.mergeRectangle(allRect.get(2*i), allRect.get(2*i + 1));
-//                for (Line l:polygon
-//                ) {
-//                    ld.drawLine(sc.r2s(l.getP1()), sc.r2s(l.getP2()));
-//                }
 
-            RectangleMerging rectangleMerging = new RectangleMerging();
-            List<RealPoint> polygonPoints = rectangleMerging.makePolygon(allRect);
+
+            //RectangleMerging rectangleMerging = new RectangleMerging();
+            MergeRectangle mergeRectangle = new MergeRectangle();
+            //List<RealPoint> polygonPoints = rectangleMerging.makePolygon(allRect);
+            List<RealPoint> polygonPoints = mergeRectangle.createPolygon(allRect);
+
+            drawPoints(polygonPoints, gr);
             drawPolygon(polygonPoints, ld);
-//            ListRect listRect = new ListRect();
-//            //System.out.println(allRect.size());
-//            LinkedList<Rectangle> rectangleLinkedList = new LinkedList<>(allRect);
-//            System.out.println("__");
-//            System.out.println(rectangleLinkedList.size());
-//            System.out.println("__");
-//
-//            drawPolygon(listRect.solve(rectangleLinkedList), ld);
 
-            //rd.drawRectangle(sc.r2s(allRect.get(0).getP1()), sc.r2s(allRect.get(0).getP2()),ld);
         }else {
             if (currentRectangle != null) {
                 drawRect(currentRectangle, rd);
@@ -104,6 +95,18 @@ public class DrawPanel extends JPanel implements MouseMotionListener, MouseListe
         gr.dispose();
         g.drawImage(bi, 0, 0, null);
 
+    }
+    private void drawPoints(List<RealPoint> points, Graphics g){
+        g.setColor(red);
+        g.setFont(new Font("Tahoma", Font.BOLD, 10));
+
+        for (RealPoint p:points) {
+            g.setColor(red);
+            g.fillOval(sc.r2s(p).getX() - 3, sc.r2s(p).getY() - 3, 6, 6);
+            g.setColor(black);
+            g.drawString(String.valueOf(points.indexOf(p)), sc.r2s(p).getX() - 3, sc.r2s(p).getY() - 3);
+
+        }
     }
 
     private void drawPolygon(List<RealPoint> points, LineDrawer ld){

@@ -1,6 +1,8 @@
 package com.company;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -9,5 +11,6 @@ public class Main {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setVisible(true);
+
     }
 }
